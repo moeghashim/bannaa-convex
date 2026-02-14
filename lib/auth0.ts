@@ -1,4 +1,4 @@
-import "../server/auth0-compat";
+import "./auth0-compat";
 
 import { Auth0Client } from "@auth0/nextjs-auth0/server";
 
