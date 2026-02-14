@@ -9,4 +9,6 @@ if (!convexUrl) {
   );
 }
 
-export const convex = new ConvexReactClient(convexUrl ?? "");
+// Next.js may evaluate this during build-time. Ensure the URL is always absolute.
+const fallbackUrl = "http://localhost:3210";
+export const convex = new ConvexReactClient(convexUrl ?? fallbackUrl);

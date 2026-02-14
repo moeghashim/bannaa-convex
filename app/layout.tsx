@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Bannaa",
@@ -22,7 +23,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {/* Global providers so App Router pages can use Convex + React Query */}
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
