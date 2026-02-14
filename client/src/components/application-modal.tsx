@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertApplicationSchema, type InsertApplication } from "@shared/schema";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation as useConvexMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -29,30 +29,38 @@ export function ApplicationModal({ children }: { children: React.ReactNode }) {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: InsertApplication) => {
-      const res = await apiRequest("POST", "/api/applications", data);
-      return res.json();
-    },
-    onSuccess: () => {
+  const createApplication = useConvexMutation(api.applications.create);
+  const [submitting, setSubmitting] = useState(false);
+
+  async function onSubmit(data: InsertApplication) {
+    if (submitting) return;
+
+    try {
+      setSubmitting(true);
+      await createApplication({
+        name: data.name,
+        email: data.email,
+        githubUrl: data.githubUrl || undefined,
+        linkedinUrl: data.linkedinUrl || undefined,
+        experienceLevel: data.experienceLevel,
+        motivation: data.motivation,
+      });
+
       toast({
         title: "تم استلام طلبك بنجاح",
         description: "سنقوم بمراجعة طلبك والتواصل معك قريباً.",
       });
       setOpen(false);
       form.reset();
-    },
-    onError: (error: any) => {
+    } catch (error: any) {
       toast({
         title: "خطأ في إرسال الطلب",
-        description: error.message || "حدث خطأ ما، يرجى المحاولة مرة أخرى.",
+        description: error?.message || "حدث خطأ ما، يرجى المحاولة مرة أخرى.",
         variant: "destructive",
       });
-    },
-  });
-
-  function onSubmit(data: InsertApplication) {
-    mutation.mutate(data);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -172,9 +180,9 @@ export function ApplicationModal({ children }: { children: React.ReactNode }) {
             <Button 
               type="submit" 
               className="w-full bg-secondary text-black hover:bg-[#b3e600] font-bold mt-4"
-              disabled={mutation.isPending}
+              disabled={submitting}
             >
-              {mutation.isPending ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : "إرسال الطلب"}
+              {submitting ? <Loader2 className="w-4 h-4 animate-spin ml-2" /> : "إرسال الطلب"}
             </Button>
           </form>
         </Form>
