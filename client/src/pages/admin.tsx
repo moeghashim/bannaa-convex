@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import Link from "next/link";
 import {
   BrainCog,
   Loader2,
@@ -74,10 +74,11 @@ export default function AdminDashboard() {
               لوحة التحكم
             </span>
           </div>
-          <Link href="/">
-            <a className="font-mono text-sm font-bold hover:underline">
-              العودة للرئيسية
-            </a>
+          <Link
+            href="/"
+            className="font-mono text-sm font-bold hover:underline"
+          >
+            العودة للرئيسية
           </Link>
         </div>
       </nav>
