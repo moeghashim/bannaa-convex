@@ -12,7 +12,7 @@ export async function middleware(req: NextRequest) {
     return auth0.middleware(req);
   }
 
-  if (!pathname.startsWith("/admin")) {
+  if (!pathname.startsWith("/admin") && !pathname.startsWith("/dashboard")) {
     return NextResponse.next();
   }
 
@@ -28,5 +28,11 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/api/auth/:path*", "/admin", "/admin/:path*"],
+  matcher: [
+    "/api/auth/:path*",
+    "/admin",
+    "/admin/:path*",
+    "/dashboard",
+    "/dashboard/:path*",
+  ],
 };

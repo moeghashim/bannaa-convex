@@ -228,9 +228,12 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="hidden md:block border-2 border-black px-6 py-2 font-bold text-sm hover:bg-black hover:text-white transition-colors uppercase">
+            <Link
+              href="/dashboard"
+              className="hidden md:block border-2 border-black px-6 py-2 font-bold text-sm hover:bg-black hover:text-white transition-colors uppercase"
+            >
               {content.nav.login}
-            </button>
+            </Link>
             <ApplicationModal>
               <button className="bg-secondary border-2 border-black px-6 py-2 font-bold text-sm shadow-brutal-sm hover:shadow-brutal transition-all hover:-translate-y-0.5 uppercase flex items-center gap-2">
                 {content.nav.getAccess}
