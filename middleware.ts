@@ -18,6 +18,14 @@ export async function middleware(req: NextRequest) {
 
   const session = await auth0.getSession(req);
   if (session?.user) {
+    // Admin allowlist (simple & explicit)
+    if (pathname.startsWith("/admin")) {
+      const email = (session.user as any)?.email?.toLowerCase?.();
+      if (email !== "moe@bannaa.co") {
+        return NextResponse.redirect(new URL("/", req.url));
+      }
+    }
+
     return NextResponse.next();
   }
 
