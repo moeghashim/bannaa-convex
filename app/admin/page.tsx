@@ -1,8 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const Admin = dynamic(() => import("@/pages/admin"), { ssr: false });
+import Admin from "@/pages/admin";
 
 export default function Page() {
   return <Admin />;
