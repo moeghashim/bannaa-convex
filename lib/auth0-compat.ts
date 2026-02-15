@@ -9,7 +9,13 @@ function setIfMissing(key: string, value?: string) {
   if (!process.env[key] && value) process.env[key] = value;
 }
 
-setIfMissing("AUTH0_DOMAIN", process.env.AUTHO_DOMAIN);
+function normalizeAuth0Domain(input?: string) {
+  if (!input) return undefined;
+  // Accept either `dev-xxx.us.auth0.com` or `https://dev-xxx.us.auth0.com/`
+  return input.replace(/^https?:\/\//, "").replace(/\/+$/, "");
+}
+
+setIfMissing("AUTH0_DOMAIN", normalizeAuth0Domain(process.env.AUTHO_DOMAIN));
 setIfMissing("AUTH0_CLIENT_ID", process.env.AUTHO_CLIENT_ID);
 setIfMissing("AUTH0_CLIENT_SECRET", process.env.AUTHO_CLIENT_SECRET);
 
@@ -18,7 +24,7 @@ setIfMissing("AUTH0_SECRET", process.env.AUTHO_SECRET);
 setIfMissing("APP_BASE_URL", process.env.AUTHO_BASE_URL);
 
 if (!process.env.AUTH0_ISSUER_BASE_URL && process.env.AUTH0_DOMAIN) {
-  process.env.AUTH0_ISSUER_BASE_URL = `https://${process.env.AUTH0_DOMAIN}`;
+  process.env.AUTH0_ISSUER_BASE_URL = `https://${normalizeAuth0Domain(process.env.AUTH0_DOMAIN)}`;
 }
 
 if (!process.env.APP_BASE_URL && process.env.VERCEL_URL) {
