@@ -16,8 +16,8 @@ function normalizeAuth0Domain(input?: string) {
 }
 
 setIfMissing("AUTH0_DOMAIN", normalizeAuth0Domain(process.env.AUTHO_DOMAIN));
-setIfMissing("AUTH0_CLIENT_ID", process.env.AUTHO_CLIENT_ID);
-setIfMissing("AUTH0_CLIENT_SECRET", process.env.AUTHO_CLIENT_SECRET);
+setIfMissing("AUTH0_CLIENT_ID", process.env.AUTHO_CLIENT_ID?.trim());
+setIfMissing("AUTH0_CLIENT_SECRET", process.env.AUTHO_CLIENT_SECRET?.trim());
 
 setIfMissing("AUTH0_SECRET", process.env.AUTHO_SECRET);
 // The SDK uses APP_BASE_URL
