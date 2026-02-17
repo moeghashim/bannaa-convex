@@ -187,5 +187,180 @@ Title: **Model vs Prompt vs Tools vs Workflow**
 
 ---
 
+---
+
+# Lesson Pack — L2 (v1)
+
+## L2 — Git + GitHub Basics (Practical) (أساسيات Git وGitHub عمليًا)
+Lesson #: **2 / 12**
+
+### Objective (هدف الدرس)
+بنهاية الدرس، المتعلم يقدر:
+- يشرح الفرق بين **Git** و **GitHub** بشكل بسيط.
+- ينشئ Repo على GitHub ويعمل: **clone → commit → push**.
+- يفهم مفهوم **branch** و **Pull Request** و **Issues** بدون تعقيد.
+- يطبق “روتين شحن” بسيط: كل خطوة صغيرة = commit بعنوان واضح.
+
+### Core Concepts (المفاهيم الأساسية)
+- **Repository (Repo):** مجلد مشروع متتبع بإصدارات.
+- **Commit:** لقطة محفوظة من تغييراتك.
+- **Remote:** نسخة المشروع على الإنترنت (GitHub).
+- **Clone / Pull / Push:** نسخ من GitHub / جلب تحديثات / إرسال تحديثات.
+- **Branch:** مسار عمل منفصل لتجربة تغييرات.
+- **Pull Request (PR):** طلب دمج تغييرات من branch إلى main.
+- **Issue:** تذكرة مهمة/مشكلة/فكرة.
+
+### Lesson Text (الشرح)
+#### 1) Git vs GitHub — الفرق في سطرين
+- **Git** = نظام إدارة نسخ (Version Control) على جهازك.
+- **GitHub** = مكان تستضيف عليه repo + تتعاون + تراجع التغييرات.
+
+تخيلها كده:
+- Git = “آلة الزمن”
+- GitHub = “متحف عام” لآلة الزمن
+
+#### 2) أقل مسار عملي: clone → commit → push
+هنشتغل على Repo اسمه: `ai-age-fundamentals`
+
+**الخطوات (CLI):**
+1) اعمل Clone:
+```bash
+git clone <REPO_URL>
+cd ai-age-fundamentals
+```
+
+2) اعمل ملف بسيط:
+```bash
+echo "# AI Age Fundamentals" > README.md
+```
+
+3) Stage + Commit:
+```bash
+git add README.md
+git commit -m "chore: init repo"
+```
+
+4) Push:
+```bash
+git push origin main
+```
+
+**قاعدة ذهبية:**
+- لو تقدر تشرح التغيير في جملة واحدة → ده commit كويس.
+
+#### 3) Naming بسيط للملفات والمجلدات (Project Hygiene v0)
+اعمل هيكل ثابت:
+```
+/lessons
+  /lesson-02
+    notes.md
+    homework.md
+/assets
+  screenshots/
+```
+
+#### 4) Issues & PRs — ليه دول مهمين حتى لو أنت لوحدك؟
+- Issue = “ماذا سنفعل؟”
+- PR = “ما الذي تغير؟ ولماذا؟”
+
+حتى لو مشروعك شخصي: ده بيخليك تفكر بوضوح وتراجع نفسك.
+
+#### 5) Branches بدون دوخة
+- `main` = النسخة المستقرة
+- branch = تجربة تغيير
+
+مثال:
+```bash
+git checkout -b lesson-02
+# edits...
+git add .
+git commit -m "feat: add lesson 02 pack"
+git push -u origin lesson-02
+```
+ثم تفتح PR.
+
+> ملاحظة: في هذا الكورس، لو أنت مبتدئ جدًا، تقدر تشتغل على main مباشرة (بس حافظ على commits صغيرة وواضحة).
+
+### Slides Script (10–12 slides)
+1) Title: Git + GitHub عمليًا
+2) Git vs GitHub (آلة الزمن vs الاستضافة)
+3) Repo / Commit / History
+4) Clone / Pull / Push (رحلة التغيير)
+5) git status (أهم أمر)
+6) git add vs git commit (Stage vs Snapshot)
+7) رسائل Commit الجيدة (أمثلة)
+8) Issues (فكرة → مهمة)
+9) Branch + PR (دمج التغييرات)
+10) Project Hygiene (هيكل المجلدات)
+11) Mini Check
+12) Homework
+
+### Quiz
+**MCQ**
+1) Git هو: **A**
+   - A) نظام إدارة نسخ على جهازك
+   - B) موقع لاستضافة الفيديوهات
+   - C) لغة برمجة
+
+2) الهدف من Commit هو: **B**
+   - A) حذف تاريخ المشروع
+   - B) حفظ لقطة من التغييرات برسالة واضحة
+   - C) تنزيل المشروع من GitHub
+
+3) الأمر الذي يوضح حالة الملفات (مضافة/غير مضافة) هو: **C**
+   - A) git run
+   - B) git history
+   - C) git status
+
+4) Pull Request يعني: **A**
+   - A) طلب دمج تغييرات من branch إلى main
+   - B) حذف فرع
+   - C) رفع صورة
+
+5) أفضل رسالة Commit عادة تكون: **B**
+   - A) "update"
+   - B) "feat: add lesson 02 pack"
+   - C) "asdf"
+
+**Short answer**
+6) اكتب الفرق بين `git add` و `git commit` بجملة واحدة لكل منهما.
+7) ليه نستخدم Issues حتى لو بنشتغل لوحدنا؟
+
+### Homework + Rubric
+**Part A (Required):**
+- أنشئ Repo باسم: `ai-age-fundamentals`
+- أضف هيكل المجلدات:
+  - `lessons/lesson-02/notes.md`
+  - `lessons/lesson-02/homework.md`
+  - `assets/screenshots/`
+
+**Part B (Required):**
+- نفّذ 4 commits صغيرة (على الأقل) وكل commit له رسالة واضحة:
+  1) init structure
+  2) add lesson-02 notes
+  3) add homework instructions
+  4) polish README
+
+**Submission format:**
+- رابط GitHub Repo
+- صورة واحدة من تبويب "Commits" (اختياري)
+
+Rubric (10):
+- (3) Repo شغال + push ناجح
+- (3) هيكل ملفات منظم
+- (2) رسائل commits واضحة وصغيرة
+- (2) وجود notes + homework بشكل مفهوم
+
+### Remotion Explainer Storyboard (60–120s) (optional)
+Title: **Commit صغير = شحن أسرع**
+- Scene 1: مشكلة (تغيير كبير غير مفهوم)
+- Scene 2: مثال قبل/بعد (commit كبير vs 4 commits صغيرة)
+- Scene 3: git log (شرح سريع)
+- Scene 4: قواعد رسائل commits
+- Scene 5: Recap
+
+---
+
 ## Changelog
 - v0.1: initial approved spec + L1 pack v1 embedded
+- L2 v1: initial lesson pack for Git/GitHub basics
