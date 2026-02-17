@@ -19,7 +19,7 @@ export default function DashboardPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/auth/me", { credentials: "include" });
+        const res = await fetch("/api/me", { credentials: "include" });
         const json = (await res.json()) as SessionResponse;
         if (!cancelled) setSession(json);
       } finally {
