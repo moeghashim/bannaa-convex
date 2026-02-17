@@ -365,8 +365,8 @@ export default function Home() {
               />
 
               <div className="relative grid lg:grid-cols-2 gap-10 items-start">
-                {/* Left: price card */}
-                <div className="flex justify-center lg:justify-start">
+                {/* Price card (force to LEFT on desktop) */}
+                <div className="flex justify-center lg:justify-start lg:order-2">
                   <div className="relative bg-white border-4 border-black shadow-brutal-lg w-full max-w-md">
                     <div className="absolute -top-4 start-1/2 -translate-x-1/2 bg-black text-white font-mono text-xs px-3 py-1 border-2 border-black">
                       {content.pricing.discountBadge}
@@ -406,8 +406,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Right: value prop */}
-                <div className="relative">
+                {/* Value prop (force to RIGHT on desktop) */}
+                <div className="relative lg:order-1">
                   <div className="inline-block bg-secondary border-2 border-black px-3 py-1 font-mono text-xs font-bold mb-6">
                     {content.pricing.badge}
                   </div>
