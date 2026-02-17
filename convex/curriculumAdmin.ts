@@ -1,4 +1,11 @@
+import { v } from "convex/values";
 import { mutation } from "./_generated/server";
+
+function requireInternalKey(args: { internalKey: string }) {
+  const expected = process.env.INTERNAL_API_KEY;
+  if (!expected) throw new Error("Missing INTERNAL_API_KEY in Convex env");
+  if (args.internalKey !== expected) throw new Error("Unauthorized");
+}
 
 // One-time seed from the previously hardcoded curriculum in client/src/pages/curriculum.tsx
 // Safe to re-run (idempotent): if curricula exist, it does nothing.
@@ -141,5 +148,27 @@ export const seedDefault = mutation({
     });
 
     return { seeded: true } as const;
+  },
+});
+
+export const setCurriculumFree = mutation({
+  args: {
+    slug: v.string(),
+    isFree: v.boolean(),
+    internalKey: v.string(),
+  },
+  handler: async (ctx, args) => {
+    requireInternalKey(args);
+
+    const curriculum = await ctx.db
+      .query("curricula")
+      .withIndex("by_slug", (q) => q.eq("slug", args.slug))
+      .first();
+
+    if (!curriculum) throw new Error("Curriculum not found");
+
+    await ctx.db.patch(curriculum._id, { isFree: args.isFree });
+
+    return { slug: args.slug, isFree: args.isFree };
   },
 });
