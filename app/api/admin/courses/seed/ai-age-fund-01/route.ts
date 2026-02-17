@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
 
   const { courseId } = (await req.json()) as { courseId: string };
 
-  const internalKey = process.env.INTERNAL_API_KEY;
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  const internalKey = process.env.INTERNAL_API_KEY?.trim();
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.trim();
 
   if (!internalKey || !convexUrl) {
     return NextResponse.json({ error: "not_configured" }, { status: 500 });

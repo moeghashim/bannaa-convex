@@ -31,7 +31,7 @@ export default async function AdminCoursePreview({
 }: {
   params: { slug: string };
 }) {
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.trim();
 
   if (!convexUrl) {
     return (
