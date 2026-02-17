@@ -57,7 +57,7 @@ export default function Page() {
         <h2 style={{ fontSize: 18, fontWeight: 600 }}>Courses</h2>
         <ul style={{ marginTop: 8, lineHeight: 1.8 }}>
           <li>
-            <Link href="/admin/courses/ai-age-fund-01">AI-AGE-FUND-01 (draft)</Link>
+            <Link href="/admin/course?slug=ai-age-fund-01">AI-AGE-FUND-01 (draft)</Link>
           </li>
         </ul>
       </div>
