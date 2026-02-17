@@ -1,14 +1,10 @@
 // Auth0 env var compatibility.
 //
-// Host env vars use AUTHO_* (letter O) due to platform limitation.
-// The Auth0 Next.js SDK expects AUTH0_* (zero) variables by default.
+// Some hosts can't set env var keys containing `0`, so we store Auth0 config
+// as AUTHO_* (letter O). This module reads both AUTHO_* and AUTH0_* safely.
 //
-// This file sets process.env.AUTH0_* aliases at runtime so the SDK works.
-
-function setIfMissing(key: string, value?: string) {
-  const v = value?.trim();
-  if (!process.env[key] && v) process.env[key] = v;
-}
+// IMPORTANT: This module must be safe in Next.js Middleware (edge runtime).
+// Do NOT mutate process.env here.
 
 function normalizeAuth0Domain(input?: string) {
   if (!input) return undefined;
@@ -16,22 +12,31 @@ function normalizeAuth0Domain(input?: string) {
   return input.replace(/^https?:\/\//, "").replace(/\/+$/, "");
 }
 
-setIfMissing("AUTH0_DOMAIN", normalizeAuth0Domain(process.env.AUTHO_DOMAIN));
-setIfMissing("AUTH0_CLIENT_ID", process.env.AUTHO_CLIENT_ID?.trim());
-setIfMissing("AUTH0_CLIENT_SECRET", process.env.AUTHO_CLIENT_SECRET?.trim());
+export function getAuth0RuntimeConfig() {
+  const domain = normalizeAuth0Domain(
+    process.env.AUTHO_DOMAIN || process.env.AUTH0_DOMAIN,
+  );
 
-setIfMissing("AUTH0_SECRET", process.env.AUTHO_SECRET);
-// The SDK uses APP_BASE_URL
-setIfMissing("APP_BASE_URL", process.env.AUTHO_BASE_URL);
+  const clientId = (process.env.AUTHO_CLIENT_ID || process.env.AUTH0_CLIENT_ID)?.trim();
+  const clientSecret = (
+    process.env.AUTHO_CLIENT_SECRET || process.env.AUTH0_CLIENT_SECRET
+  )?.trim();
 
-if (!process.env.AUTH0_ISSUER_BASE_URL && process.env.AUTH0_DOMAIN) {
-  process.env.AUTH0_ISSUER_BASE_URL = `https://${normalizeAuth0Domain(process.env.AUTH0_DOMAIN)}`;
-}
+  const secret = (process.env.AUTHO_SECRET || process.env.AUTH0_SECRET)?.trim();
 
-if (!process.env.APP_BASE_URL && process.env.VERCEL_URL) {
-  process.env.APP_BASE_URL = `https://${process.env.VERCEL_URL}`;
-}
+  const appBaseUrl = (process.env.AUTHO_BASE_URL || process.env.APP_BASE_URL)?.trim();
 
-if (!process.env.APP_BASE_URL) {
-  process.env.APP_BASE_URL = "http://localhost:3000";
+  const issuerBaseUrl = (
+    process.env.AUTH0_ISSUER_BASE_URL ||
+    (domain ? `https://${domain}` : undefined)
+  )?.trim();
+
+  return {
+    domain,
+    clientId,
+    clientSecret,
+    secret,
+    appBaseUrl,
+    issuerBaseUrl,
+  };
 }

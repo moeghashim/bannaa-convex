@@ -1,16 +1,14 @@
-import "./auth0-compat";
-
 import { Auth0Client } from "@auth0/nextjs-auth0/server";
+import { getAuth0RuntimeConfig } from "./auth0-compat";
 
-// After importing auth0-compat, we expect AUTH0_* env vars to be present.
-// The SDK also supports using env vars directly, but we keep the config explicit.
+const cfg = getAuth0RuntimeConfig();
 
 export const auth0 = new Auth0Client({
-  domain: process.env.AUTH0_DOMAIN,
-  clientId: process.env.AUTH0_CLIENT_ID,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET,
-  secret: process.env.AUTH0_SECRET?.trim(),
-  appBaseUrl: process.env.APP_BASE_URL?.trim(),
+  domain: cfg.domain,
+  clientId: cfg.clientId,
+  clientSecret: cfg.clientSecret,
+  secret: cfg.secret,
+  appBaseUrl: cfg.appBaseUrl,
   authorizationParameters: {
     scope: "openid profile email",
   },
