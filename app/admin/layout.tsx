@@ -13,7 +13,10 @@ export default async function AdminLayout({
   // Avoid manually constructing a Request (can break in edge/proxy setups).
   let session: any = null;
   try {
-    session = await auth0.getSession();
+    session = await Promise.race([
+      auth0.getSession(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("auth0_getSession_timeout")), 1500)),
+    ]);
   } catch {
     session = null;
   }
