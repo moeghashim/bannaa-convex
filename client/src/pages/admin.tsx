@@ -25,7 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
@@ -47,6 +47,15 @@ type ApplicationRow = {
   createdAt: number;
 };
 
+type CurriculumRow = {
+  id: string;
+  slug: string;
+  title: string;
+  status: "available" | "coming-soon";
+  order: number;
+  isFree: boolean;
+};
+
 export default function AdminDashboard() {
   // Force RTL direction
   useEffect(() => {
@@ -58,6 +67,13 @@ export default function AdminDashboard() {
   const applications = useQuery(
     api.admin.listApplications,
   ) as ApplicationRow[] | undefined;
+  const curricula = useQuery(api.curriculum.listPublic) as
+    | CurriculumRow[]
+    | undefined;
+
+  const [planEmail, setPlanEmail] = useState("");
+  const [planValue, setPlanValue] = useState<"free" | "paid">("free");
+  const [savingPlan, setSavingPlan] = useState(false);
 
   const isLoadingLeads = leads === undefined;
   const isLoadingApps = applications === undefined;
@@ -130,6 +146,116 @@ export default function AdminDashboard() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
+          {/* SaaS Controls */}
+          <Card className="border-2 border-black shadow-brutal col-span-1 lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="font-display text-2xl">إعدادات SaaS</CardTitle>
+              <CardDescription className="font-mono">
+                تحكم بالخطة (free/paid) وتحرير الوصول للمنهج.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6 md:grid-cols-2">
+                {/* User plan */}
+                <div className="border-2 border-black p-4 bg-white">
+                  <div className="font-display text-lg mb-2">خطة مستخدم</div>
+                  <div className="flex flex-col gap-3">
+                    <input
+                      value={planEmail}
+                      onChange={(e) => setPlanEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="border-2 border-black px-4 py-2 font-mono"
+                    />
+                    <div className="flex gap-3">
+                      <button
+                        type="button"
+                        className={`border-2 border-black px-4 py-2 font-mono font-bold ${
+                          planValue === "free" ? "bg-secondary" : "bg-white"
+                        }`}
+                        onClick={() => setPlanValue("free")}
+                      >
+                        free
+                      </button>
+                      <button
+                        type="button"
+                        className={`border-2 border-black px-4 py-2 font-mono font-bold ${
+                          planValue === "paid" ? "bg-secondary" : "bg-white"
+                        }`}
+                        onClick={() => setPlanValue("paid")}
+                      >
+                        paid
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={savingPlan || !planEmail}
+                      className="bg-black text-white border-2 border-black px-4 py-2 font-bold hover:bg-secondary hover:text-black transition-colors uppercase disabled:opacity-50"
+                      onClick={async () => {
+                        if (!planEmail) return;
+                        try {
+                          setSavingPlan(true);
+                          await fetch("/api/admin/user/plan", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              targetEmail: planEmail,
+                              plan: planValue,
+                            }),
+                          });
+                        } finally {
+                          setSavingPlan(false);
+                        }
+                      }}
+                    >
+                      حفظ
+                    </button>
+                  </div>
+                </div>
+
+                {/* Curriculum access */}
+                <div className="border-2 border-black p-4 bg-white">
+                  <div className="font-display text-lg mb-2">المنهج: مجاني/مدفوع</div>
+                  <div className="space-y-2">
+                    {(curricula ?? [])
+                      .slice()
+                      .sort((a, b) => a.order - b.order)
+                      .map((c) => (
+                        <div
+                          key={c.id}
+                          className="flex items-center justify-between gap-3 border-2 border-black px-3 py-2"
+                        >
+                          <div>
+                            <div className="font-mono font-bold">{c.title}</div>
+                            <div className="font-mono text-xs text-gray-500">
+                              {c.slug}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            className={`border-2 border-black px-3 py-1 font-mono font-bold ${
+                              c.isFree ? "bg-green-100" : "bg-gray-100"
+                            }`}
+                            onClick={async () => {
+                              await fetch("/api/admin/curriculum/free", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  slug: c.slug,
+                                  isFree: !c.isFree,
+                                }),
+                              });
+                            }}
+                          >
+                            {c.isFree ? "FREE" : "PAID"}
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Applications Table */}
           <Card
             className="border-2 border-black shadow-brutal col-span-1 lg:col-span-2"
