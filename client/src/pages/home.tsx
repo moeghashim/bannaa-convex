@@ -76,12 +76,14 @@ const content = {
   },
   pricing: {
     title: "انضم إلى النخبة",
-    subtitle: "نحن لا نبيع كورسات. بل نؤهِّل جيلاََ من البنّائين.",
-    originalPrice: "$39",
+    subtitle: "نحن لا نبيع كورسات. بل نؤهِّل جيلاً من البنّائين.",
+    originalPrice: "$29",
     price: "$9",
     period: "/ اشتراك",
     badge: "الدفعة الأولى فقط",
+    discountBadge: "خصم %75",
     applicationNote: "نظام القبول: قائم على تقديم الطلب والموافقة",
+    limitedSeatsNote: "المقاعد محدودة للغاية",
     features: [
       "وصول كامل للمنهج الدراسي",
       "توجيه مباشر من الخبراء",
@@ -351,69 +353,91 @@ export default function Home() {
 
           {/* Pricing Section */}
           <div className="mb-24">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="bg-secondary p-2 border-2 border-black">
-                <Brain className="w-6 h-6" />
-              </div>
-              <h2 className="font-display text-3xl md:text-4xl uppercase tracking-tighter rtl:tracking-normal">
-                {content.pricing.title}
-              </h2>
-            </div>
+            <div className="relative border-t-2 border-black pt-12">
+              {/* faint grid-ish background like the reference */}
+              <div
+                className="pointer-events-none absolute inset-0 opacity-[0.08]"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+                  backgroundSize: "32px 32px",
+                }}
+              />
 
-            <p className="font-mono text-lg md:text-xl mb-10 bg-white inline-block px-4 py-2 border-2 border-black">
-              {content.pricing.subtitle}
-            </p>
+              <div className="relative grid lg:grid-cols-2 gap-10 items-start">
+                {/* Left: price card */}
+                <div className="flex justify-center lg:justify-start">
+                  <div className="relative bg-white border-4 border-black shadow-brutal-lg w-full max-w-md">
+                    <div className="absolute -top-4 start-1/2 -translate-x-1/2 bg-black text-white font-mono text-xs px-3 py-1 border-2 border-black">
+                      {content.pricing.discountBadge}
+                    </div>
 
-            <div className="bg-white border-4 border-black shadow-brutal-lg p-8 md:p-10 max-w-2xl">
-              <div className="flex justify-between items-start mb-8">
-                <div>
-                  <div className="inline-block bg-secondary px-3 py-1 text-sm font-bold uppercase border-2 border-black mb-4">
+                    <div className="p-8">
+                      <div className="flex items-center justify-center gap-4 mb-2">
+                        <span className="font-mono text-xl line-through text-gray-400">
+                          {content.pricing.originalPrice}
+                        </span>
+                        <div className="font-display text-7xl leading-none">
+                          {content.pricing.price}
+                        </div>
+                      </div>
+                      <div className="text-center font-mono text-sm text-gray-500 mb-6">
+                        {content.pricing.period}
+                      </div>
+
+                      <div className="bg-gray-50 border-2 border-black px-4 py-3 font-mono text-sm text-gray-700 flex items-center justify-between gap-3 mb-6">
+                        <span>{content.pricing.applicationNote}</span>
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                      </div>
+
+                      <ApplicationModal>
+                        <button
+                          className="w-full bg-secondary border-4 border-black py-4 font-display text-2xl shadow-brutal-sm hover:shadow-brutal transition-all"
+                          data-testid="button-apply-pricing"
+                        >
+                          {content.pricing.cta}
+                        </button>
+                      </ApplicationModal>
+
+                      <div className="mt-4 text-center font-mono text-xs text-gray-400">
+                        {content.pricing.limitedSeatsNote}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: value prop */}
+                <div className="relative">
+                  <div className="inline-block bg-secondary border-2 border-black px-3 py-1 font-mono text-xs font-bold mb-6">
                     {content.pricing.badge}
                   </div>
 
-                  <div className="flex items-baseline gap-3">
-                    <span className="font-display text-6xl">{content.pricing.price}</span>
-                    <span className="font-mono text-xl">{content.pricing.period}</span>
-                    <span className="font-mono text-lg line-through text-gray-500">
-                      {content.pricing.originalPrice}
-                    </span>
+                  <div className="flex items-start gap-6">
+                    <h2 className="font-display text-5xl md:text-7xl leading-tight">
+                      {content.pricing.title}
+                    </h2>
+                    <div className="w-1 bg-black mt-3 h-16" />
                   </div>
-                </div>
 
-                <div className="bg-black text-white px-4 py-2 font-mono text-sm">
-                  {content.pricing.applicationNote}
-                </div>
-              </div>
-
-              <ul className="space-y-4 mb-10">
-                {content.pricing.features.map((feature, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <div className="bg-secondary border-2 border-black p-1 mt-0.5">
-                      <Check className="w-4 h-4" />
-                    </div>
-                    <span className="font-mono text-base md:text-lg rtl:font-sans rtl:font-bold">
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <ApplicationModal>
-                <button
-                  className="w-full brutal-btn brutal-btn-primary flex items-center justify-center gap-2 text-lg"
-                  data-testid="button-apply-pricing"
-                >
-                  <ArrowRight className="w-5 h-5 rtl:rotate-180" />
-                  {content.pricing.cta}
-                </button>
-              </ApplicationModal>
-
-              <div className="mt-6 p-4 bg-gray-50 border-2 border-black">
-                <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 mt-0.5 text-black" />
-                  <p className="font-mono text-sm rtl:font-sans">
-                    القبول محدود ويتم بناءً على جودة الطلب.
+                  <p className="mt-4 font-mono text-lg text-gray-700 max-w-xl">
+                    {content.pricing.subtitle}
                   </p>
+
+                  <ul className="mt-8 space-y-4">
+                    {content.pricing.features.map((feature, idx) => (
+                      <li
+                        key={idx}
+                        className="flex items-center gap-3 font-mono font-bold"
+                      >
+                        <span className="inline-flex items-center justify-center w-6 h-6 bg-black text-white border-2 border-black">
+                          <Check className="w-4 h-4" />
+                        </span>
+                        <span className="rtl:font-sans rtl:font-bold">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
