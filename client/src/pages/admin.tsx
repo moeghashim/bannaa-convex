@@ -357,12 +357,15 @@ export default function AdminDashboard() {
                             <div className="font-mono text-xs text-gray-500">{c.slug}</div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <a
-                              href={`/admin/courses/${c.slug}`}
+                            <button
+                              type="button"
                               className="border-2 border-black px-3 py-1 font-mono font-bold bg-white hover:bg-gray-50"
+                              onClick={() => {
+                                window.location.href = `/admin/courses/${c.slug}`;
+                              }}
                             >
                               Preview
-                            </a>
+                            </button>
                             <button
                               type="button"
                               disabled={publishingSlug === c.slug}
