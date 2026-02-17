@@ -56,6 +56,16 @@ type CurriculumRow = {
   isFree: boolean;
 };
 
+type SiteCourseRow = {
+  id: string;
+  slug: string;
+  title: string;
+  stage: "draft" | "published";
+  version: string;
+  createdAt: number;
+  sourcePath?: string;
+};
+
 export default function AdminDashboard() {
   // Force RTL direction
   useEffect(() => {
@@ -71,9 +81,17 @@ export default function AdminDashboard() {
     | CurriculumRow[]
     | undefined;
 
+  const draftCourses = useQuery(api.siteCourses.listByStage, {
+    stage: "draft",
+  }) as SiteCourseRow[] | undefined;
+
   const [planEmail, setPlanEmail] = useState("");
   const [planValue, setPlanValue] = useState<"free" | "paid">("free");
   const [savingPlan, setSavingPlan] = useState(false);
+
+  const [syncingCourses, setSyncingCourses] = useState(false);
+  const [publishingSlug, setPublishingSlug] = useState<string | null>(null);
+  const [publishVersion, setPublishVersion] = useState("v0.1");
 
   const isLoadingLeads = leads === undefined;
   const isLoadingApps = applications === undefined;
@@ -155,7 +173,7 @@ export default function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid gap-6 md:grid-cols-3">
                 {/* User plan */}
                 <div className="border-2 border-black p-4 bg-white">
                   <div className="font-display text-lg mb-2">خطة مستخدم</div>
@@ -250,6 +268,84 @@ export default function AdminDashboard() {
                           </button>
                         </div>
                       ))}
+                  </div>
+                </div>
+
+                {/* Course publishing */}
+                <div className="border-2 border-black p-4 bg-white">
+                  <div className="font-display text-lg mb-2">نشر الكورسات (Markdown → Draft → Publish)</div>
+
+                  <div className="flex items-center gap-2 mb-3">
+                    <button
+                      type="button"
+                      disabled={syncingCourses}
+                      className="bg-black text-white border-2 border-black px-3 py-2 font-bold hover:bg-secondary hover:text-black transition-colors uppercase disabled:opacity-50"
+                      onClick={async () => {
+                        try {
+                          setSyncingCourses(true);
+                          await fetch("/api/admin/courses/sync", { method: "POST" });
+                        } finally {
+                          setSyncingCourses(false);
+                        }
+                      }}
+                    >
+                      {syncingCourses ? "جاري المزامنة…" : "مزامنة من الماركداون"}
+                    </button>
+
+                    <input
+                      value={publishVersion}
+                      onChange={(e) => setPublishVersion(e.target.value)}
+                      className="border-2 border-black px-3 py-2 font-mono text-sm w-24"
+                      placeholder="v0.1"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    {(draftCourses ?? []).slice(0, 10).map((c) => (
+                      <div key={c.id} className="border-2 border-black px-3 py-2">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <div className="font-mono font-bold">{c.title}</div>
+                            <div className="font-mono text-xs text-gray-500">{c.slug}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/admin/courses/${c.slug}`}
+                              className="border-2 border-black px-3 py-1 font-mono font-bold bg-white hover:bg-gray-50"
+                            >
+                              Preview
+                            </Link>
+                            <button
+                              type="button"
+                              disabled={publishingSlug === c.slug}
+                              className="border-2 border-black px-3 py-1 font-mono font-bold bg-secondary hover:opacity-90 disabled:opacity-50"
+                              onClick={async () => {
+                                try {
+                                  setPublishingSlug(c.slug);
+                                  await fetch("/api/admin/courses/publish", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                      slug: c.slug,
+                                      version: publishVersion || "v0.1",
+                                    }),
+                                  });
+                                } finally {
+                                  setPublishingSlug(null);
+                                }
+                              }}
+                            >
+                              {publishingSlug === c.slug ? "…" : "Publish"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {(draftCourses ?? []).length === 0 ? (
+                      <div className="font-mono text-sm text-gray-500">
+                        لا توجد Drafts بعد — اضغط "مزامنة من الماركداون".
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               </div>
