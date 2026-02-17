@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { useToast } from "@/hooks/use-toast";
 
 type Course = {
   id: string;
@@ -31,6 +32,11 @@ export default function AdminCoursePreview({
 }: {
   params: { slug: string };
 }) {
+  const { toast } = useToast();
+  const [newModuleTitle, setNewModuleTitle] = useState("");
+  const [addingModule, setAddingModule] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
   useEffect(() => {
     document.documentElement.dir = "rtl";
     document.documentElement.lang = "ar";
@@ -66,10 +72,98 @@ export default function AdminCoursePreview({
           </div>
         ) : (
           <div className="max-w-4xl">
-            <div className="bg-white border-2 border-black shadow-brutal p-6 mb-8">
+            <div className="bg-white border-2 border-black shadow-brutal p-6 mb-6">
               <div className="font-display text-3xl mb-2">{course.title}</div>
               <div className="font-mono text-xs text-gray-500">
                 slug: {course.slug} — version: {course.version}
+              </div>
+            </div>
+
+            <div className="bg-white border-2 border-black shadow-brutal-sm p-6 mb-8">
+              <div className="font-display text-xl mb-4">إدارة الكورس (Draft)</div>
+
+              <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
+                <input
+                  value={newModuleTitle}
+                  onChange={(e) => setNewModuleTitle(e.target.value)}
+                  placeholder="عنوان موديول جديد"
+                  className="border-2 border-black px-4 py-2 font-mono flex-1"
+                />
+                <button
+                  type="button"
+                  disabled={addingModule || !newModuleTitle}
+                  className="bg-black text-white border-2 border-black px-4 py-2 font-bold hover:bg-secondary hover:text-black transition-colors uppercase disabled:opacity-50"
+                  onClick={async () => {
+                    try {
+                      setAddingModule(true);
+                      const res = await fetch("/api/admin/courses/module", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          courseId: course.id,
+                          title: newModuleTitle,
+                        }),
+                      });
+                      const json = await res.json().catch(() => null);
+                      if (!res.ok) {
+                        toast({
+                          title: "فشل إضافة الموديول",
+                          description: (json as any)?.error || "تعذر إضافة الموديول.",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      setNewModuleTitle("");
+                      toast({ title: "تم", description: "تمت إضافة الموديول." });
+                    } finally {
+                      setAddingModule(false);
+                    }
+                  }}
+                >
+                  {addingModule ? "…" : "إضافة موديول"}
+                </button>
+
+                {course.slug === "ai-age-fund-01" ? (
+                  <button
+                    type="button"
+                    disabled={seeding}
+                    className="border-2 border-black px-4 py-2 font-bold bg-secondary hover:opacity-90 disabled:opacity-50"
+                    onClick={async () => {
+                      try {
+                        setSeeding(true);
+                        const res = await fetch(
+                          "/api/admin/courses/seed/ai-age-fund-01",
+                          {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ courseId: course.id }),
+                          },
+                        );
+                        const json = await res.json().catch(() => null);
+                        if (!res.ok) {
+                          toast({
+                            title: "فشل إنشاء المنهج",
+                            description: (json as any)?.error || "تعذر إنشاء الدروس.",
+                            variant: "destructive",
+                          });
+                          return;
+                        }
+                        toast({
+                          title: "تم إنشاء المنهج",
+                          description: `تم إنشاء ${(json as any)?.createdCount ?? 0} درس.`,
+                        });
+                      } finally {
+                        setSeeding(false);
+                      }
+                    }}
+                  >
+                    {seeding ? "…" : "Seed AI-AGE-FUND-01 (Outline)"}
+                  </button>
+                ) : null}
+              </div>
+
+              <div className="font-mono text-xs text-gray-500 mt-3">
+                ملاحظة: بعد الإضافة/الـ seed، اعمل Refresh للصفحة.
               </div>
             </div>
 
@@ -85,23 +179,19 @@ export default function AdminCoursePreview({
                     <div className="font-display text-xl mb-4">{m.title}</div>
                     <ul className="space-y-2">
                       {m.lessons.map((l) => (
-                        <li key={l.id} className="font-mono">
-                          <span className="font-bold">L{l.lessonNo}:</span> {l.title} ({l.slug})
+                        <li key={l.id} className="font-mono flex items-center justify-between gap-3">
+                          <div>
+                            <span className="font-bold">L{l.lessonNo}:</span> {l.title} ({l.slug})
+                          </div>
+                          <Link
+                            href={`/admin/courses/${course.slug}/lessons/${l.slug}`}
+                            className="border-2 border-black px-3 py-1 font-mono font-bold bg-white hover:bg-gray-50"
+                          >
+                            Edit Pack
+                          </Link>
                         </li>
                       ))}
                     </ul>
-
-                    {/* quick access to L1 pack if present */}
-                    {m.lessons.some((l) => l.slug === "l1") ? (
-                      <div className="mt-4">
-                        <Link
-                          href={`/admin/courses/${course.slug}/lessons/l1`}
-                          className="inline-block border-2 border-black px-4 py-2 font-mono font-bold bg-secondary"
-                        >
-                          عرض Lesson Pack (L1)
-                        </Link>
-                      </div>
-                    ) : null}
                   </div>
                 ))}
             </div>
