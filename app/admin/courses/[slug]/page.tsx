@@ -2,6 +2,9 @@ import Link from "next/link";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "../../../../convex/_generated/api";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 type Course = {
   id: string;
   slug: string;
