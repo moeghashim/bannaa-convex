@@ -7,14 +7,15 @@ import { auth0 } from "./lib/auth0";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Always run Auth0 middleware first so it can manage rolling sessions
-  // and set/refresh cookies as needed.
-  const authRes = await auth0.middleware(req);
-
-  // Auth0-owned routes should return immediately.
+  // Auth0 API routes are handled by the App Router route handler at
+  // /api/auth/[...auth0]. Don't run Auth0 middleware here.
   if (pathname.startsWith("/api/auth")) {
-    return authRes;
+    return NextResponse.next();
   }
+
+  // Run Auth0 middleware so it can manage rolling sessions and set/refresh
+  // cookies as needed for protected routes.
+  const authRes = await auth0.middleware(req);
 
   if (!pathname.startsWith("/admin") && !pathname.startsWith("/dashboard")) {
     return authRes;
@@ -41,7 +42,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/api/auth/:path*",
     "/admin",
     "/admin/:path*",
     "/dashboard",
