@@ -123,7 +123,7 @@ export default function AdminCoursePreview({
                   {addingModule ? "…" : "إضافة موديول"}
                 </button>
 
-                {course.slug === "ai-age-fund-01" ? (
+                {params.slug === "ai-age-fund-01" ? (
                   <button
                     type="button"
                     disabled={seeding}
