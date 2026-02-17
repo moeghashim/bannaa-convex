@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { arSA } from "date-fns/locale";
 import { useEffect, useState } from "react";
@@ -67,6 +68,7 @@ type SiteCourseRow = {
 };
 
 export default function AdminDashboard() {
+  const { toast } = useToast();
   // Force RTL direction
   useEffect(() => {
     document.documentElement.dir = "rtl";
@@ -283,7 +285,34 @@ export default function AdminDashboard() {
                       onClick={async () => {
                         try {
                           setSyncingCourses(true);
-                          await fetch("/api/admin/courses/sync", { method: "POST" });
+                          const res = await fetch("/api/admin/courses/sync", {
+                            method: "POST",
+                          });
+                          const json = await res.json().catch(() => null);
+
+                          if (!res.ok) {
+                            toast({
+                              title: "فشل المزامنة",
+                              description:
+                                (json as any)?.error || "تعذر مزامنة ملفات الكورسات.",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+
+                          const firstSlug = (json as any)?.results?.[0]?.slug as
+                            | string
+                            | undefined;
+
+                          toast({
+                            title: "تمت المزامنة",
+                            description: `تمت مزامنة ${(json as any)?.synced ?? 0} كورس إلى Draft.`,
+                          });
+
+                          if (firstSlug) {
+                            // Jump directly to preview to avoid “nothing loads” confusion
+                            window.location.href = `/admin/courses/${firstSlug}`;
+                          }
                         } finally {
                           setSyncingCourses(false);
                         }
@@ -322,13 +351,30 @@ export default function AdminDashboard() {
                               onClick={async () => {
                                 try {
                                   setPublishingSlug(c.slug);
-                                  await fetch("/api/admin/courses/publish", {
+                                  const res = await fetch("/api/admin/courses/publish", {
                                     method: "POST",
                                     headers: { "Content-Type": "application/json" },
                                     body: JSON.stringify({
                                       slug: c.slug,
                                       version: publishVersion || "v0.1",
                                     }),
+                                  });
+                                  const json = await res.json().catch(() => null);
+
+                                  if (!res.ok) {
+                                    toast({
+                                      title: "فشل النشر",
+                                      description:
+                                        (json as any)?.error ||
+                                        "تعذر نشر الكورس. جرّب مرة أخرى.",
+                                      variant: "destructive",
+                                    });
+                                    return;
+                                  }
+
+                                  toast({
+                                    title: "تم النشر",
+                                    description: `تم نشر ${c.slug} (${publishVersion || "v0.1"}).`,
                                   });
                                 } finally {
                                   setPublishingSlug(null);
