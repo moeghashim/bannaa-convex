@@ -24,7 +24,6 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {/* Global providers so App Router pages can use Convex + React Query */}
         <Providers>{children}</Providers>
       </body>
     </html>
