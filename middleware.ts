@@ -7,13 +7,17 @@ import { auth0 } from "./lib/auth0";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // First, let Auth0 mount its own routes.
+  // Always run Auth0 middleware first so it can manage rolling sessions
+  // and set/refresh cookies as needed.
+  const authRes = await auth0.middleware(req);
+
+  // Auth0-owned routes should return immediately.
   if (pathname.startsWith("/api/auth")) {
-    return auth0.middleware(req);
+    return authRes;
   }
 
   if (!pathname.startsWith("/admin") && !pathname.startsWith("/dashboard")) {
-    return NextResponse.next();
+    return authRes;
   }
 
   const session = await auth0.getSession(req);
@@ -26,7 +30,7 @@ export async function middleware(req: NextRequest) {
       }
     }
 
-    return NextResponse.next();
+    return authRes;
   }
 
   const loginUrl = req.nextUrl.clone();
