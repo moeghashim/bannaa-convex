@@ -6,7 +6,8 @@
 // This file sets process.env.AUTH0_* aliases at runtime so the SDK works.
 
 function setIfMissing(key: string, value?: string) {
-  if (!process.env[key] && value) process.env[key] = value;
+  const v = value?.trim();
+  if (!process.env[key] && v) process.env[key] = v;
 }
 
 function normalizeAuth0Domain(input?: string) {
