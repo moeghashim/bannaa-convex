@@ -133,6 +133,7 @@ function parseCourseMarkdown(sourcePath: string, markdown: string): ParsedCourse
   return { slug, title, modules, lessonPacks };
 }
 
+// --- Legacy: Markdown → Convex (kept for reference, not used in production) ---
 export const upsertDraftFromMarkdown = mutation({
   args: {
     internalKey: v.string(),

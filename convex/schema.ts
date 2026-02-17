@@ -38,8 +38,9 @@ export default defineSchema({
     stage: v.union(v.literal("draft"), v.literal("published")),
     // e.g. "v0.1" or "draft"
     version: v.string(),
+    // optional legacy fields (markdown workflow)
     sourcePath: v.optional(v.string()),
-    rawMarkdown: v.string(),
+    rawMarkdown: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_slug_stage", ["slug", "stage", "createdAt"])
