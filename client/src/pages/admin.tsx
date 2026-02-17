@@ -91,9 +91,14 @@ export default function AdminDashboard() {
   const [planValue, setPlanValue] = useState<"free" | "paid">("free");
   const [savingPlan, setSavingPlan] = useState(false);
 
-  const [syncingCourses, setSyncingCourses] = useState(false);
   const [publishingSlug, setPublishingSlug] = useState<string | null>(null);
   const [publishVersion, setPublishVersion] = useState("v0.1");
+
+  const [newCourseSlug, setNewCourseSlug] = useState("ai-age-fund-01");
+  const [newCourseTitle, setNewCourseTitle] = useState(
+    "AI-AGE-FUND-01 — AI Age Fundamentals",
+  );
+  const [creatingCourse, setCreatingCourse] = useState(false);
 
   const isLoadingLeads = leads === undefined;
   const isLoadingApps = applications === undefined;
@@ -273,60 +278,74 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                {/* Course publishing */}
+                {/* Courses CMS */}
                 <div className="border-2 border-black p-4 bg-white">
-                  <div className="font-display text-lg mb-2">نشر الكورسات (Markdown → Draft → Publish)</div>
+                  <div className="font-display text-lg mb-2">الكورسات (Convex CMS)</div>
 
-                  <div className="flex items-center gap-2 mb-3">
-                    <button
-                      type="button"
-                      disabled={syncingCourses}
-                      className="bg-black text-white border-2 border-black px-3 py-2 font-bold hover:bg-secondary hover:text-black transition-colors uppercase disabled:opacity-50"
-                      onClick={async () => {
-                        try {
-                          setSyncingCourses(true);
-                          const res = await fetch("/api/admin/courses/sync", {
-                            method: "POST",
-                          });
-                          const json = await res.json().catch(() => null);
-
-                          if (!res.ok) {
-                            toast({
-                              title: "فشل المزامنة",
-                              description:
-                                (json as any)?.error || "تعذر مزامنة ملفات الكورسات.",
-                              variant: "destructive",
-                            });
-                            return;
-                          }
-
-                          const firstSlug = (json as any)?.results?.[0]?.slug as
-                            | string
-                            | undefined;
-
-                          toast({
-                            title: "تمت المزامنة",
-                            description: `تمت مزامنة ${(json as any)?.synced ?? 0} كورس إلى Draft.`,
-                          });
-
-                          if (firstSlug) {
-                            // Jump directly to preview to avoid “nothing loads” confusion
-                            window.location.href = `/admin/courses/${firstSlug}`;
-                          }
-                        } finally {
-                          setSyncingCourses(false);
-                        }
-                      }}
-                    >
-                      {syncingCourses ? "جاري المزامنة…" : "مزامنة من الماركداون"}
-                    </button>
-
+                  <div className="grid gap-2 mb-4">
                     <input
-                      value={publishVersion}
-                      onChange={(e) => setPublishVersion(e.target.value)}
-                      className="border-2 border-black px-3 py-2 font-mono text-sm w-24"
-                      placeholder="v0.1"
+                      value={newCourseSlug}
+                      onChange={(e) => setNewCourseSlug(e.target.value)}
+                      className="border-2 border-black px-3 py-2 font-mono text-sm"
+                      placeholder="ai-age-fund-01"
                     />
+                    <input
+                      value={newCourseTitle}
+                      onChange={(e) => setNewCourseTitle(e.target.value)}
+                      className="border-2 border-black px-3 py-2 font-mono text-sm"
+                      placeholder="Course title"
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        disabled={creatingCourse}
+                        className="bg-black text-white border-2 border-black px-3 py-2 font-bold hover:bg-secondary hover:text-black transition-colors uppercase disabled:opacity-50"
+                        onClick={async () => {
+                          try {
+                            setCreatingCourse(true);
+                            const res = await fetch("/api/admin/courses/create", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                slug: newCourseSlug,
+                                title: newCourseTitle,
+                              }),
+                            });
+                            const json = await res.json().catch(() => null);
+
+                            if (!res.ok) {
+                              toast({
+                                title: "فشل إنشاء الكورس",
+                                description:
+                                  (json as any)?.error || "تعذر إنشاء Draft جديد.",
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+
+                            toast({
+                              title: "تم إنشاء Draft",
+                              description: `تم إنشاء كورس: ${(json as any)?.slug}`,
+                            });
+
+                            if ((json as any)?.slug) {
+                              window.location.href = `/admin/courses/${(json as any).slug}`;
+                            }
+                          } finally {
+                            setCreatingCourse(false);
+                          }
+                        }}
+                      >
+                        {creatingCourse ? "…" : "إنشاء Draft"}
+                      </button>
+
+                      <input
+                        value={publishVersion}
+                        onChange={(e) => setPublishVersion(e.target.value)}
+                        className="border-2 border-black px-3 py-2 font-mono text-sm w-24"
+                        placeholder="v0.1"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -389,7 +408,7 @@ export default function AdminDashboard() {
                     ))}
                     {(draftCourses ?? []).length === 0 ? (
                       <div className="font-mono text-sm text-gray-500">
-                        لا توجد Drafts بعد — اضغط "مزامنة من الماركداون".
+                        لا توجد Drafts بعد — أنشئ أول كورس من الأعلى.
                       </div>
                     ) : null}
                   </div>
