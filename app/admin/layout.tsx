@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth0 } from "../../lib/auth0";
 
@@ -10,18 +9,15 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const h = await headers();
-  const cookie = h.get("cookie") ?? "";
+  // In App Router server components, the Auth0 SDK can read cookies automatically.
+  // Avoid manually constructing a Request (can break in edge/proxy setups).
+  let session: any = null;
+  try {
+    session = await auth0.getSession();
+  } catch {
+    session = null;
+  }
 
-  // Auth0 SDK expects a Request/NextRequest with cookies.
-  const baseUrl = process.env.APP_BASE_URL?.trim() || "https://bannaa-convex.vercel.app";
-  const req = new Request(`${baseUrl}/admin`, {
-    headers: {
-      cookie,
-    },
-  });
-
-  const session = await auth0.getSession(req as any);
   const email = (session?.user as any)?.email?.toLowerCase?.();
 
   if (!email) {
