@@ -1,75 +1,66 @@
+"use client";
+
 import Link from "next/link";
-import { ConvexHttpClient } from "convex/browser";
+import { useEffect, useState } from "react";
+import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+type MeResponse = { user: null | { email?: string } };
 
-type Course = {
-  id: string;
-  slug: string;
-  title: string;
-  stage: "draft" | "published";
-  version: string;
-  createdAt: number;
-  modules: {
-    id: string;
-    title: string;
-    order: number;
-    lessons: {
-      id: string;
-      slug: string;
-      lessonNo: number;
-      title: string;
-      order: number;
-    }[];
-  }[];
-};
-
-export default async function AdminCoursePreview({
+export default function AdminCoursePreview({
   params,
 }: {
   params: { slug: string };
 }) {
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL?.trim();
+  const [status, setStatus] = useState<"checking" | "ok" | "redirecting">(
+    "checking",
+  );
 
-  if (!convexUrl) {
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/me", { cache: "no-store" });
+        const data = (await res.json()) as MeResponse;
+        const email = data?.user?.email?.toLowerCase?.();
+
+        if (!email) {
+          if (!cancelled) setStatus("redirecting");
+          window.location.href = `/api/auth/login?returnTo=${encodeURIComponent(
+            `/admin/courses/${params.slug}`,
+          )}`;
+          return;
+        }
+
+        if (email !== "moe@bannaa.co") {
+          window.location.href = "/";
+          return;
+        }
+
+        if (!cancelled) setStatus("ok");
+      } catch {
+        if (!cancelled) setStatus("redirecting");
+        window.location.href = `/api/auth/login?returnTo=${encodeURIComponent(
+          `/admin/courses/${params.slug}`,
+        )}`;
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [params.slug]);
+
+  const course = useQuery(api.siteCourses.getLatestBySlug, {
+    slug: params.slug,
+    stage: "draft",
+  });
+
+  if (status !== "ok") {
     return (
-      <div className="min-h-screen bg-gray-50 font-sans" dir="rtl">
-        <main className="container mx-auto px-4 py-10">
-          <div className="font-mono text-sm text-red-600">
-            Missing NEXT_PUBLIC_CONVEX_URL.
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  const client = new ConvexHttpClient(convexUrl);
-
-  let course: Course | null = null;
-  try {
-    course = (await client.query(api.siteCourses.getLatestBySlug, {
-      slug: params.slug,
-      stage: "draft",
-    })) as Course | null;
-  } catch (e: any) {
-    return (
-      <div className="min-h-screen bg-gray-50 font-sans" dir="rtl">
-        <div className="border-b-2 border-black bg-white sticky top-0 z-50">
-          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-            <div className="font-display text-xl">معاينة كورس (Draft)</div>
-            <Link href="/admin" className="font-mono text-sm font-bold hover:underline">
-              رجوع للوحة التحكم
-            </Link>
-          </div>
-        </div>
-        <main className="container mx-auto px-4 py-10">
-          <div className="font-mono text-sm text-red-600">
-            Failed to load course from Convex: {e?.message || String(e)}
-          </div>
-        </main>
-      </div>
+      <main style={{ padding: 24, fontFamily: "system-ui" }}>
+        <h1>Course</h1>
+        <p>{status === "checking" ? "Checking session…" : "Redirecting…"}</p>
+      </main>
     );
   }
 
@@ -78,14 +69,19 @@ export default async function AdminCoursePreview({
       <div className="border-b-2 border-black bg-white sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="font-display text-xl">معاينة كورس (Draft)</div>
-          <Link href="/admin" className="font-mono text-sm font-bold hover:underline">
+          <Link
+            href="/admin"
+            className="font-mono text-sm font-bold hover:underline"
+          >
             رجوع للوحة التحكم
           </Link>
         </div>
       </div>
 
       <main className="container mx-auto px-4 py-10">
-        {course === null ? (
+        {course === undefined ? (
+          <div className="font-mono text-sm text-gray-600">جاري التحميل…</div>
+        ) : course === null ? (
           <div className="font-mono text-sm text-gray-600">
             لا يوجد Draft لهذا الكورس حتى الآن.
           </div>
