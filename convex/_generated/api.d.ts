@@ -10,7 +10,9 @@
 
 import type * as admin from "../admin.js";
 import type * as applications from "../applications.js";
+import type * as curriculum from "../curriculum.js";
 import type * as leads from "../leads.js";
+import type * as userPlan from "../userPlan.js";
 
 import type {
   ApiFromModules,
@@ -21,7 +23,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   applications: typeof applications;
+  curriculum: typeof curriculum;
   leads: typeof leads;
+  userPlan: typeof userPlan;
 }>;
 
 /**
