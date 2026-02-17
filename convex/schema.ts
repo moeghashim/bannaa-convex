@@ -28,6 +28,54 @@ export default defineSchema({
     isFree: v.boolean(),
   }).index("by_slug", ["slug"]).index("by_order", ["order"]),
 
+  // --- Website course publishing (Markdown → Convex) ---
+  // Canonical content lives as markdown in the repo (/courses/*.md)
+  // Convex stores normalized, previewable (draft) + public (published) snapshots.
+  siteCourses: defineTable({
+    slug: v.string(),
+    title: v.string(),
+    // draft | published
+    stage: v.union(v.literal("draft"), v.literal("published")),
+    // e.g. "v0.1" or "draft"
+    version: v.string(),
+    sourcePath: v.optional(v.string()),
+    rawMarkdown: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_slug_stage", ["slug", "stage", "createdAt"])
+    .index("by_stage", ["stage", "createdAt"]),
+
+  siteCourseModules: defineTable({
+    courseId: v.id("siteCourses"),
+    title: v.string(),
+    order: v.number(),
+  }).index("by_course", ["courseId", "order"]),
+
+  siteCourseLessons: defineTable({
+    courseId: v.id("siteCourses"),
+    moduleId: v.id("siteCourseModules"),
+    lessonNo: v.number(),
+    slug: v.string(), // e.g. "l1"
+    title: v.string(),
+    order: v.number(),
+  })
+    .index("by_course", ["courseId", "order"])
+    .index("by_course_slug", ["courseId", "slug"]),
+
+  siteLessonPacks: defineTable({
+    courseId: v.id("siteCourses"),
+    lessonId: v.id("siteCourseLessons"),
+    // display-only for now; keep sections as markdown blocks.
+    objectiveMd: v.optional(v.string()),
+    conceptsMd: v.optional(v.string()),
+    lessonTextMd: v.optional(v.string()),
+    slidesMd: v.optional(v.string()),
+    quizMd: v.optional(v.string()),
+    homeworkMd: v.optional(v.string()),
+    rubricMd: v.optional(v.string()),
+    remotionMd: v.optional(v.string()),
+  }).index("by_lesson", ["lessonId"]),
+
   curriculumModules: defineTable({
     curriculumId: v.id("curricula"),
     title: v.string(),
