@@ -1,17 +1,16 @@
 import Link from "next/link";
 import { BrainCog, ArrowRight } from "lucide-react";
-import { ApplicationModal } from "@/components/application-modal";
 
 const content = {
   brand: "بنّاء",
   nav: {
-    features: "المنهج",
-    pricing: "الرسوم",
-    about: "رسالتنا",
-    login: "بوابة الطلاب",
-    getAccess: "قدّم الآن",
+    curriculum: "المنهج",
+    blog: "المدونة",
+    skool: "Skool",
   },
 };
+
+const skoolUrl = process.env.NEXT_PUBLIC_SKOOL_URL || "https://www.skool.com";
 
 export function WebsiteNav() {
   return (
@@ -32,30 +31,23 @@ export function WebsiteNav() {
             className="hover:underline decoration-2 underline-offset-4"
             data-testid="link-curriculum"
           >
-            {content.nav.features}
+            {content.nav.curriculum}
           </Link>
-          <a href="#" className="hover:underline decoration-2 underline-offset-4">
-            {content.nav.pricing}
-          </a>
-          <a href="#" className="hover:underline decoration-2 underline-offset-4">
-            {content.nav.about}
-          </a>
+          <Link href="/blog" className="hover:underline decoration-2 underline-offset-4">
+            {content.nav.blog}
+          </Link>
         </div>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/dashboard"
-            className="hidden md:block border-2 border-black px-6 py-2 font-bold text-sm hover:bg-black hover:text-white transition-colors uppercase"
+          <a
+            href={skoolUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="border-2 border-black px-6 py-2 font-bold text-sm bg-black text-white hover:bg-white hover:text-black transition-colors uppercase flex items-center gap-2"
           >
-            {content.nav.login}
-          </Link>
-
-          <ApplicationModal>
-            <button className="bg-secondary border-2 border-black px-6 py-2 font-bold text-sm shadow-brutal-sm hover:shadow-brutal transition-all hover:-translate-y-0.5 uppercase flex items-center gap-2">
-              {content.nav.getAccess}
-              <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-            </button>
-          </ApplicationModal>
+            {content.nav.skool}
+            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+          </a>
         </div>
       </div>
     </nav>

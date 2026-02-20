@@ -7,13 +7,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "check": "tsc",
-    "convex:dev": "convex dev",
-    "convex:deploy": "convex deploy"
+    "check": "tsc"
   },
-  "notes": "removed framer motion dependency",
+  "notes": "frontend-only (Skool backend)",
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.15.0",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@octokit/rest": "^22.0.1",
@@ -48,7 +45,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "convex": "^1.31.7",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.23.24",
