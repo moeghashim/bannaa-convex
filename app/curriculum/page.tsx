@@ -35,11 +35,16 @@ export default function CurriculumPage() {
           </div>
 
           <div className="bg-white border-2 border-black shadow-brutal-sm p-6">
-            <div className="font-display text-xl mb-2">ملاحظة</div>
+            <div className="font-display text-xl mb-2">Preview المواد</div>
             <p className="font-mono text-sm text-gray-700 leading-relaxed">
-              لو تحب نعرض Preview بسيط للمنهج هنا (بدون تسجيل دخول)، نقدر نضيف
-              صفحة ثابتة.
+              عملنا صفحة ثابتة بتعرض ملفات الكورسات من فولدر <code>courses/</code>.
             </p>
+            <Link
+              href="/courses"
+              className="inline-block mt-5 border-2 border-black bg-black text-white px-4 py-2 font-bold hover:bg-white hover:text-black transition-colors"
+            >
+              فتح Preview
+            </Link>
           </div>
         </div>
       </div>
